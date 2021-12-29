@@ -14,17 +14,17 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
 public class IOUtil{
-
+	
 	public static final int DEFAULT_BUFFER_SIZE = 8192;
-
+	
 	public static byte[] readResource(String name) throws IOException{
 		return readFully(ClassLoader.getSystemResourceAsStream(name));
 	}
-
+	
 	public static String readResourceUTF8(String name) throws IOException{
 		return new String(readResource(name), StandardCharsets.UTF_8);
 	}
-
+	
 	public static int copy(InputStream in, OutputStream out, byte[] buffer, int offset, int length) throws IOException{
 		int read;
 		int len = 0;
@@ -34,24 +34,24 @@ public class IOUtil{
 		}
 		return len;
 	}
-
+	
 	public static void copyFast(InputStream in, OutputStream out, byte[] buffer, int offset, int length) throws IOException{
 		int read;
 		while((read = in.read(buffer, offset, length)) != -1){
 			out.write(buffer, offset, read);
 		}
 	}
-
+	
 	public static int copy(InputStream in, OutputStream out) throws IOException{
 		int size = DEFAULT_BUFFER_SIZE;
 		return copy(in, out, new byte[size], 0, size);
 	}
-
+	
 	public static void copyFast(InputStream in, OutputStream out) throws IOException{
 		int size = DEFAULT_BUFFER_SIZE;
 		copyFast(in, out, new byte[size], 0, size);
 	}
-
+	
 	public static byte[] readFully(InputStream in, int bufferSize) throws IOException{
 		int read;
 		int offset = 0;
@@ -69,11 +69,11 @@ public class IOUtil{
 		System.arraycopy(buffer, 0, result, 0, result.length);
 		return result;
 	}
-
+	
 	public static byte[] readFully(InputStream in) throws IOException{
 		return readFully(in, DEFAULT_BUFFER_SIZE);
 	}
-
+	
 	public static ByteBuffer readFully(ReadableByteChannel ch, int bufferSize) throws IOException{
 		ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
 		while(ch.read(buffer) != -1){
@@ -101,11 +101,11 @@ public class IOUtil{
 		buffer.flip();
 		return buffer.slice();
 	}
-	
+
 	public static ByteBuffer readFully(ReadableByteChannel ch) throws InterruptedException, IOException{
 		return readFully(ch, DEFAULT_BUFFER_SIZE);
 	}
-
+	
 	public static OutputStream getMultiOutputStream(OutputStream...outputs){
 		return new OutputStream(){
 			@Override
@@ -114,24 +114,24 @@ public class IOUtil{
 					output.write(b);
 				}
 			}
-
+			
 			@Override
 			public void write(byte[] b, int off, int len) throws IOException{
 				for(OutputStream output : outputs){
 					output.write(b, off, len);
 				}
 			}
-
+			
 			@Override
 			public void flush() throws IOException{
 				flush(0, outputs.length);
 			}
-
+			
 			@Override
 			public void close() throws IOException{
 				close(0, outputs.length);
 			}
-
+			
 			private void flush(int index, int length) throws IOException{
 				try{
 					outputs[index].flush();
@@ -141,7 +141,7 @@ public class IOUtil{
 					}
 				}
 			}
-
+			
 			private void close(int index, int length) throws IOException{
 				try{
 					outputs[index].close();
@@ -153,7 +153,7 @@ public class IOUtil{
 			}
 		};
 	}
-
+	
 	public static void tunnelFast(InputStream input, OutputStream tunnel, int bufferSize) throws IOException{
 		byte[] buffer = new byte[bufferSize];
 		int read;
@@ -161,7 +161,7 @@ public class IOUtil{
 			tunnel.write(buffer, 0, read);
 		}
 	}
-
+	
 	public static int tunnel(InputStream input, OutputStream tunnel, int bufferSize) throws IOException{
 		byte[] buffer = new byte[bufferSize];
 		int read;
@@ -172,7 +172,7 @@ public class IOUtil{
 		}
 		return c;
 	}
-
+	
 	public static void tunnelGzipFast(InputStream input, OutputStream tunnel, int bufferSize) throws IOException{
 		try(GZIPOutputStream gzipOut = new GZIPOutputStream(tunnel, bufferSize)){
 			byte[] buffer = new byte[bufferSize];
@@ -183,11 +183,11 @@ public class IOUtil{
 			gzipOut.flush();
 		}
 	}
-
+	
 	public static void tunnelGzipFast(InputStream input, OutputStream tunnel) throws IOException{
 		tunnelGzipFast(input, tunnel, DEFAULT_BUFFER_SIZE);
 	}
-
+	
 	public static int tunnelGzip(InputStream input, OutputStream tunnel, int bufferSize) throws IOException{
 		try(GZIPOutputStream gzipOut = new GZIPOutputStream(tunnel, bufferSize)){
 			byte[] buffer = new byte[bufferSize];
@@ -201,11 +201,11 @@ public class IOUtil{
 			return c;
 		}
 	}
-
+	
 	public static int tunnelGzip(InputStream input, OutputStream tunnel) throws IOException{
 		return tunnelGzip(input, tunnel, DEFAULT_BUFFER_SIZE);
 	}
-
+	
 	public static Map<String, List<String>> getParameters(String url){
 		if(url == null || url.isEmpty()){
 			return Collections.emptyMap();
@@ -223,7 +223,7 @@ public class IOUtil{
 		return Arrays.stream(url.substring(paramStart + 1).split("&")).map(IOUtil::getParam).collect(Collectors.groupingBy(
 				SimpleImmutableEntry::getKey, LinkedHashMap::new, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
 	}
-
+	
 	public static SimpleImmutableEntry<String, String> getParam(String param){
 		final int idx = param.indexOf("=");
 		final String key = idx > 0 ? param.substring(0, idx) : param;

@@ -29,86 +29,86 @@ import net.jkdev.rushhour.TextureLoader;
  * hochgeladen in ein Vertex Buffer Object, welches mit einem Vertex Array Object verknüpft wird.
  * Außerdem managt diese Klasse die Erstellung und Freigebung von allen genutzten OpenGL Objekten.
  * Des Weiteren wird das Laden von Wavefront 3D-Modelldaten ermöglicht.
- * 
+ *
  * @author Jan Kiefer
  */
 public class Model{
-
+	
 	private int		vao, vbo;
 	private int		vertexCount;
 	private int[]	objIndices;
-
+	
 	private int[]		meshData;
 	private Material[]	materials;
-
+	
 	public Model(){
-
+		
 	}
-
+	
 	public void load(int[] objIndices, int[] meshData, Material[] materials, FloatBuffer vertices, FloatBuffer normals,
 			FloatBuffer texCoordData){
 		this.objIndices = objIndices;
 		this.meshData = meshData;
 		this.materials = materials;
-
+		
 		vertexCount = vertices.capacity() / 3;
 		int vao = this.vao = glCreateVertexArrays();
-
+		
 		int vbo = this.vbo = glCreateBuffers();
-
+		
 		int verticesSize = vertices.capacity() << 2;
 		int normalsSize = normals.capacity() << 2;
-
+		
 		glNamedBufferData(vbo, vertices.capacity() + normals.capacity() + texCoordData.capacity() << 2, GL_DYNAMIC_DRAW);
 		glNamedBufferSubData(vbo, 0, vertices);
 		glNamedBufferSubData(vbo, verticesSize, normals);
 		glNamedBufferSubData(vbo, verticesSize + normalsSize, texCoordData);
-
+		
 		glVertexArrayVertexBuffer(vao, 0, vbo, 0, 3 << 2);
 		glVertexArrayVertexBuffer(vao, 1, vbo, verticesSize, 3 << 2);
 		glVertexArrayVertexBuffer(vao, 2, vbo, verticesSize + normalsSize, 2 << 2);
-
+		
 		glVertexArrayAttribBinding(vao, 0, 0);
 		glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, 0);
 		glVertexArrayBindingDivisor(vao, 0, 0);
 		glEnableVertexArrayAttrib(vao, 0);
-
+		
 		glVertexArrayAttribBinding(vao, 1, 1);
 		glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, 0);
 		glVertexArrayBindingDivisor(vao, 1, 0);
 		glEnableVertexArrayAttrib(vao, 1);
-
+		
 		glVertexArrayAttribBinding(vao, 2, 2);
 		glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, 0);
 		glVertexArrayBindingDivisor(vao, 2, 0);
 		glEnableVertexArrayAttrib(vao, 2);
 	}
-
+	
 	public int getObjectCount(){
 		return objIndices.length;
 	}
-
+	
 	public int getObjectIndex(int objectID){
 		return objIndices[objectID];
 	}
-
+	
 	public int getObjectSize(int objectID){
 		return (objectID + 1 < objIndices.length ? objIndices[objectID + 1] : vertexCount) - objIndices[objectID];
 	}
-
+	
 	public void destroy(){
 		glDeleteBuffers(vbo);
 		glDeleteVertexArrays(vao);
 	}
-
+	
 	public void render(RushHour game, double delta){
 		render(game, delta, RushHour.COLOR_WHITE);
 	}
-
+	
 	public void render(RushHour game, double delta, int objectID){
 		render(game, delta, objectID, RushHour.COLOR_WHITE);
 	}
-
+	
 	public void render(RushHour game, double delta, float[] color){
 		glUniform4fv(0, color);
 		glBindVertexArray(vao);
@@ -123,7 +123,7 @@ public class Model{
 		}
 		glBindVertexArray(0);
 	}
-
+	
 	public void render(RushHour game, double delta, int objectID, float[] color){
 		glBindVertexArray(vao);
 		glUniform4fv(0, color);
@@ -140,7 +140,7 @@ public class Model{
 		}
 		glBindVertexArray(0);
 	}
-
+	
 	public static <T extends Model> T loadOBJ(ModelShader modelShader, TextureLoader textureLoader, String path, Class<T> type,
 			OBJModel model, Map<String, MTLLibrary> materialMap){
 		List<Float> vertices = new ArrayList<>(model.getVertices().size() * 3);
@@ -149,7 +149,7 @@ public class Model{
 		List<Integer> objIndexList = new ArrayList<>();
 		List<Integer> meshDataList = new ArrayList<>();
 		List<Material> materialList = new ArrayList<>();
-
+		
 		for(MTLLibrary mtllib : materialMap.values()){
 			for(MTLMaterial mtl : mtllib.getMaterials()){
 				Material material = new Material(mtl.getName());
@@ -161,9 +161,9 @@ public class Model{
 				}
 			}
 		}
-
+		
 		Vector3f normal = new Vector3f();
-
+		
 		for(OBJObject object : model.getObjects()){
 			objIndexList.add(vertices.size() / 3);
 			for(OBJMesh mesh : object.getMeshes()){
@@ -187,11 +187,11 @@ public class Model{
 					for(int i = 0, len = refList.size(); i < len; i++){
 						OBJDataReference ref = refList.get(i);
 						OBJVertex vertexCurrent = model.getVertex(ref);
-
+						
 						vertices.add(vertexCurrent.x);
 						vertices.add(vertexCurrent.y);
 						vertices.add(vertexCurrent.z);
-
+						
 						if(ref.hasTexCoordIndex()){
 							OBJTexCoord texCoord = model.getTexCoord(ref);
 							texCoords.add(texCoord.u);
@@ -200,7 +200,7 @@ public class Model{
 							texCoords.add(0.0F);
 							texCoords.add(0.0F);
 						}
-
+						
 						if(ref.hasNormalIndex()){
 							hasNormals = true;
 							OBJNormal n = model.getNormal(ref);
@@ -214,10 +214,10 @@ public class Model{
 									(vertexCurrent.x - vertexNext.x) * (vertexCurrent.y + vertexNext.y));
 						}
 					}
-
+					
 					if(!hasNormals){
 						normal.normalize();
-
+						
 						for(int i = 0; i < refList.size(); i++){
 							normals.add(normal.x);
 							normals.add(normal.y);
@@ -228,35 +228,36 @@ public class Model{
 				meshDataList.add(vertices.size() / 3 - meshVerticesIndex);
 			}
 		}
-
+		
 		int[] meshData = meshDataList.stream().mapToInt(i -> i).toArray();
 		int[] objIndices = objIndexList.stream().mapToInt(i -> i).toArray();
 		Material[] materials = materialList.toArray(new Material[0]);
-
+		
 		FloatBuffer vertexData = BufferUtils.createFloatBuffer(vertices.size());
 		vertices.forEach(f -> vertexData.put(f));
 		vertexData.position(0);
-
+		
 		FloatBuffer normalData = BufferUtils.createFloatBuffer(normals.size());
 		normals.forEach(f -> normalData.put(f));
 		normalData.position(0);
-
+		
 		FloatBuffer texCoordData = BufferUtils.createFloatBuffer(texCoords.size());
 		texCoords.forEach(f -> texCoordData.put(f));
 		texCoordData.position(0);
-
+		
 		T instance = null;
 		try{
 			instance = type.getConstructor().newInstance();
-		}catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e){
+		}catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e){
 			RushHour.handleError(e);
 		}
-
+		
 		instance.load(objIndices, meshData, materials, vertexData, normalData, texCoordData);
-
+		
 		return instance;
 	}
-
+	
 	public static <T extends Model> T loadOBJ(ModelShader modelShader, TextureLoader textureLoader, String path, Class<T> type)
 			throws IOException, WFException{
 		int i = path.lastIndexOf('/');
@@ -264,21 +265,21 @@ public class Model{
 			i = path.lastIndexOf('\\');
 		}
 		String directoryPath = i != 0 ? path.substring(0, i + 1) : "";
-
+		
 		try(InputStream in = ClassLoader.getSystemResourceAsStream(path)){
 			IOBJParser parser = new OBJParser();
 			OBJModel model = parser.parse(in);
-
+			
 			Map<String, MTLLibrary> materials = new HashMap<>();
 			IMTLParser mtlParser = new MTLParser();
-
+			
 			for(String materialLibraryName : model.getMaterialLibraries()){
 				try(InputStream mtlIn = ClassLoader.getSystemResourceAsStream(directoryPath + materialLibraryName)){
 					MTLLibrary material = mtlParser.parse(mtlIn);
 					materials.put(materialLibraryName, material);
 				}
 			}
-
+			
 			return loadOBJ(modelShader, textureLoader, directoryPath, type, model, materials);
 		}
 	}

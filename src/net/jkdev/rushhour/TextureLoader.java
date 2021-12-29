@@ -19,13 +19,13 @@ import net.jkdev.rushhour.util.PNGDecoder;
 /**
  * Mit Hilfe dieser Klasse wird es ermöglicht, Texturen aus Dateien zu laden, in OpenGL hochzuladen
  * und diese dann für die Verwendung beim Rendern an eine OpenGL Texture Unit zu binden.
- * 
+ *
  * @author Jan Kiefer
  */
 public class TextureLoader{
-
+	
 	public int sampler;
-
+	
 	public void loadDefaultSampler(){
 		sampler = glCreateSamplers();
 		glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
@@ -33,35 +33,35 @@ public class TextureLoader{
 		glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
-
+	
 	public void deleteDefaultSampler(){
 		glDeleteSamplers(sampler);
 	}
-
+	
 	public IntBuffer loadTextures(String...sysPaths) throws IOException{
 		IntBuffer textures = BufferUtils.createIntBuffer(sysPaths.length);
 		glCreateTextures(GL_TEXTURE_2D, textures);
 		textures.rewind();
-
+		
 		for(int i = 0; i < sysPaths.length; i++){
 			loadTexture(sysPaths[i], i, textures);
 		}
 		return textures;
 	}
-
+	
 	public void loadTexture(String sysPath, int index, IntBuffer dest) throws IOException{
 		System.out.println("Lade Textur '" + sysPath + "'...");
 		try(InputStream in = ClassLoader.getSystemResourceAsStream(sysPath)){
 			loadTexture(in, index, dest);
 		}
 	}
-
+	
 	public void loadTexture(Path p, int index, IntBuffer dest) throws IOException{
 		try(InputStream in = Files.newInputStream(p)){
 			loadTexture(in, index, dest);
 		}
 	}
-
+	
 	private void loadTexture(InputStream pngIn, int index, IntBuffer dest) throws IOException{
 		PNGDecoder decoder = null;
 		ByteBuffer buffer = null;
@@ -74,7 +74,7 @@ public class TextureLoader{
 		glGenerateTextureMipmap(dest.get(index));
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-
+	
 	public void bindTextures(int first, IntBuffer textures){
 		int index = 0;
 		while(textures.hasRemaining()){
@@ -82,11 +82,11 @@ public class TextureLoader{
 		}
 		textures.rewind();
 	}
-
+	
 	public void bindTexture(int unit, int texture){
 		glBindTextureUnit(unit, texture);
 	}
-
+	
 	public void unbindTextures(int first, int count){
 		for(int i = 0; i < count; i++){
 			glBindTextureUnit(first + i, 0);

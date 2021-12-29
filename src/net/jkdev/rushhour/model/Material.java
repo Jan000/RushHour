@@ -18,21 +18,21 @@ import net.jkdev.rushhour.TextureLoader;
 /**
  * Mit Hilfe dieser Klasse werden die Wavefront Materialdaten in ein
  * OpenGL Uniform Buffer Object geladen, um diese in einem GLSL Shader Program
- * verwenden zu können. 
- * 
+ * verwenden zu können.
+ *
  * @author Jan Kiefer
  */
 public class Material{
-
+	
 	private String name;
-
+	
 	IntBuffer	textures	= BufferUtils.createIntBuffer(5);
 	int			glBuffer;
-
+	
 	public Material(String name){
 		this.name = name;
 	}
-
+	
 	public void load(ModelShader modelShader, TextureLoader textureLoader, String path, MTLMaterial mtl) throws IOException{
 		MTLColor ambientColor = mtl.getAmbientColor(), diffuseColor = mtl.getDiffuseColor(), specularColor = mtl.getSpecularColor(),
 				transmissionColor = mtl.getTransmissionColor();
@@ -42,12 +42,12 @@ public class Material{
 				mtl.getAmbientTexture(), mtl.getDiffuseTexture(), mtl.getSpecularTexture(), mtl.getSpecularExponentTexture(),
 				mtl.getDissolveTexture());
 	}
-
+	
 	public void load(ModelShader modelShader, TextureLoader textureLoader, String path, float[] ambientColor, float[] diffuseColor,
 			float[] specularColor, float[] transmissionColor, float specularExponent, float dissolve, String ambientTexture,
 			String diffuseTexture, String specularTexture, String specularExponentTexture, String dissolveTexture) throws IOException{
 		glBuffer = glCreateBuffers();
-
+		
 		IntBuffer offsets = modelShader.uniBlockOffsets;
 		ByteBuffer data = BufferUtils.createByteBuffer(offsets.get(10) + 1);
 		data.position(offsets.get(0));
@@ -82,7 +82,7 @@ public class Material{
 		data.put((byte) (specularExponentTexture == null ? 0 : 1));
 		data.flip();
 		glNamedBufferData(glBuffer, data, GL_STATIC_DRAW);
-
+		
 		glCreateTextures(GL_TEXTURE_2D, textures);
 		if(ambientTexture != null){
 			textureLoader.loadTexture(path + ambientTexture, 0, textures);
@@ -114,13 +114,13 @@ public class Material{
 			glDeleteTextures(textures.get(4));
 			textures.put(4, 0);
 		}
-
+		
 	}
-
+	
 	public String getName(){
 		return name;
 	}
-
+	
 	@Override
 	public boolean equals(Object obj){
 		return obj instanceof Material && ((Material) obj).name.equals(name) || obj instanceof String && obj == name;

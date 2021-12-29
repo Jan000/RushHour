@@ -6,7 +6,7 @@ import net.jkdev.rushhour.Rotation;
 import net.jkdev.rushhour.RushHour;
 
 public class TruckObject extends VehicleObject{
-
+	
 	@Override
 	public void applyTransform(Matrix4f matrix){
 		matrix.translate(4.1F, 0.6F, 3.9F);

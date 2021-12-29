@@ -12,8 +12,6 @@ import static org.lwjgl.opengl.GL45.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,6 +20,8 @@ import java.lang.Math;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -53,15 +53,16 @@ import net.jkdev.rushhour.ui.*;
 
 /**
  * Die Hauptklasse des Spiels.
- * 
+ *
  * @author Jan Kiefer
  */
 public class RushHour implements Runnable{
 	
-	public static final String	NAME	= "RushHour";
-	public static final float	VERSION	= 1.9F;
-	public static final String	STAGE	= "release";
-	public static final String	FQ_NAME	= NAME + " v" + VERSION + " " + STAGE;
+	public static final String	NAME			= "RushHour";
+	public static final int		VERSION_MAJOR	= 1;
+	public static final int		VERSION_MINOR	= 10;
+	public static final String	STAGE			= "release";
+	public static final String	FQ_NAME			= NAME + " v" + VERSION_MAJOR + "." + VERSION_MINOR + " " + STAGE;
 	
 	public static final String LOG_PREFIX = "[" + NAME + "] ";
 	
@@ -86,6 +87,8 @@ public class RushHour implements Runnable{
 	public static final float		DEFAULT_CAMERA_YAW		= 0.3F;
 	public static final float		DEFAULT_CAMERA_PITCH	= 0.95F;
 	public static final float		DEFAULT_CAMERA_ROLL		= 0.0F;
+	
+	public static final File SCREENSHOT_FOLDER = new File("screenshots");
 	
 	private long	windowID;
 	private long	handCursor;
@@ -603,7 +606,8 @@ public class RushHour implements Runnable{
 				map.addVehicle(v, rot, data.x, data.z);
 				matchingVehicles.clear();
 			}else{
-				System.out.println("x-units=" + data.xUnits + ", z-units=" + data.zUnits + ": kein passendes Fahrzeug dieser Größe registriert.");
+				System.out.println(
+						"x-units=" + data.xUnits + ", z-units=" + data.zUnits + ": kein passendes Fahrzeug dieser Größe registriert.");
 			}
 		}
 		
@@ -632,68 +636,38 @@ public class RushHour implements Runnable{
 		return getCurrentLevel() > 0;
 	}
 	
-	public void createScreenshot() {
+	/**
+	 * Erstellt einen Screenshot und speichert diesen im /screenshots Ordner
+	 */
+	public void createScreenshot(){
 		int w = getWidth(), h = getHeight();
 		
 		ByteBuffer data = BufferUtils.createByteBuffer(w * h * 4);
+		GL11.glReadBuffer(GL_BACK);
 		GL11.glReadPixels(0, 0, w, h, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, data);
-		data.flip();
 		
-		BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+		BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
 		
-		for(int y = 0; y < h; y++) {
-			for(int x = 0; x < w; x++) {
-				img.setRGB(x, h - y - 1, (data.get() << 24) | (data.get() ) | (data.get() << 8) | (data.get() << 16));
+		for(int y = 0; y < h; y++){
+			for(int x = 0; x < w; x++){
+				img.setRGB(x, h - y - 1, ((data.get() & 0xFF) << 16) | ((data.get() & 0xFF) << 8) | (data.get() & 0xFF));
+				data.get();
 			}
 		}
 		
 		try{
-			ImageIO.write(img, "PNG", new File("Screenshot-" + System.currentTimeMillis() + ".png"));
+			File screenshotFile = new File(SCREENSHOT_FOLDER, "Screenshot-" + LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE)
+					+ "-" + System.currentTimeMillis() + ".png");
+			if(SCREENSHOT_FOLDER.exists() || SCREENSHOT_FOLDER.mkdirs()){
+				System.out.println("Screenshot gespeichert unter " + screenshotFile.getAbsolutePath());
+				ImageIO.write(img, "PNG", screenshotFile);
+			}else{
+				System.out.println("Screenshot-Ordner konnte nicht erstellt werden.");
+			}
 		}catch(IOException e){
 			e.printStackTrace();
 		}
-		
-		/*
-		ByteBuffer swapedScreenData = BufferUtils.createByteBuffer(getWidth() * getHeight() * 4);
-		for (int i=0; i<swapedScreenData.capacity(); i+=3) {
-			final byte red = screenData.get();
-			final byte blue = screenData.get();
-			final byte green = screenData.get();
-			swapedScreenData.put(green);     // G
-			swapedScreenData.put(blue);     // B
-			swapedScreenData.put(red);     // R
-		}
-		swapedScreenData.flip();
-		writeScreenShot(swapedScreenData);
-	*/
 	}
-/*
-	private void writeScreenShot(ByteBuffer data) {
-		byte[] tgaHeader = new byte[] { 0,0,2,0,0,0,0,0,0,0,0,0 };        
-		final Date date = new Date();
-		File screenFile = new File("Screenshot_"+date.getDate()+date.getMonth()+date.getYear()+"_"+date.getHours()+date.getMinutes()+".tga");
-		try {
-			FileOutputStream fos = new FileOutputStream(screenFile);
-			DataOutputStream dos = new DataOutputStream(fos);
-			// write the header
-			fos.write(tgaHeader);
-			dos.write(128);
-			dos.write(2);
-			dos.write(224);
-			dos.write(1);
-			dos.write(24);
-			dos.write(0);
-			// write the image data
-			fos.getChannel().write(data);           
-			fos.close();
-		} catch (FileNotFoundException fnfe) {
-			fnfe.printStackTrace();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-
-	}
-	*/
 	
 	/**
 	 * Renderschleife starten
@@ -870,6 +844,9 @@ public class RushHour implements Runnable{
 								cameraPosition.y = Math.max(cameraTrackballMinHeight, cameraPosition.y - movementSpeed);
 								perspectiveDirty = true;
 								break;
+							case GLFW_KEY_F12:
+								createScreenshot();
+								break;
 						}
 					}
 				}
@@ -908,8 +885,10 @@ public class RushHour implements Runnable{
 						for(int z = 0; z < UNIT_COUNT_Z; z++){
 							
 							v0.set(mapOffset.x() + x * UNIT_SIZE_X, mapOffset.y() + MAP_HOVER_OFFSET_Y, mapOffset.z() + z * UNIT_SIZE_Z);
-							v1.set(mapOffset.x() + (x + 1) * UNIT_SIZE_X, mapOffset.y() + MAP_HOVER_OFFSET_Y, mapOffset.z() + z * UNIT_SIZE_Z);
-							v2.set(mapOffset.x() + x * UNIT_SIZE_X, mapOffset.y() + MAP_HOVER_OFFSET_Y, mapOffset.z() + (z + 1) * UNIT_SIZE_Z);
+							v1.set(mapOffset.x() + (x + 1) * UNIT_SIZE_X, mapOffset.y() + MAP_HOVER_OFFSET_Y,
+									mapOffset.z() + z * UNIT_SIZE_Z);
+							v2.set(mapOffset.x() + x * UNIT_SIZE_X, mapOffset.y() + MAP_HOVER_OFFSET_Y,
+									mapOffset.z() + (z + 1) * UNIT_SIZE_Z);
 							
 							if(cursorRay.intersectsQuad(v0, v1, v2)){
 								//Das Spielfeld bei x und z wird mit der Maus überfahren
