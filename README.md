@@ -55,7 +55,7 @@ Please feel free to leave a comment here on GitHub or contact me at [contact@jan
 
 ### Donate
 If you like what I do and you want to support me,
-you can donate to me via PayPal [@JanKiefer](https://paypal.me/JanKiefer).
+you can donate to me via PayPal [@JanKiefer](https://paypal.me/JanKiefer).<br>
 Special thanks in advance to every supporter! 💖
 
 ### ***Have fun!***
