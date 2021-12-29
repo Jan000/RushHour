@@ -41,6 +41,7 @@ and uses the following libraries from [LWJGL](https://www.lwjgl.org/):
 
 And also:
 * [java-data-front](https://github.com/mokiat/java-data-front)
+* [PNGDecoder](https://github.com/MatthiasMann/twl/blob/master/src/de/matthiasmann/twl/utils/PNGDecoder.java)
 
 ### Notes
 This program has yet only been tested on Windows 10 pro 64 bit running Java 17.
