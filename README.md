@@ -5,11 +5,12 @@ invented by [Nob Yoshigahara](https://en.wikipedia.org/wiki/Nob_Yoshigahara)
 in the 1970s and manufactured and sold by ThinkFun since 1996.
 
 ### Getting started
+First, download the [latest release .jar from GitHub](https://github.com/Jan000/RushHour/releases/tag/release).
 To run this program you have to execute the RushHourXXX.jar file,
 either by double clicking it or utilizing the command line:
 > `java -jar RushHourXXX.jar`.
 
-*Don't forget to replace XXX with the version string you are using.*
+*Don't forget to replace XXX with the version string from the file you are using.*
 
 ### Objective
 To win the game, the red car needs to be dragged out of the parking lot.<br>
