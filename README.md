@@ -24,6 +24,8 @@ No vehicle can change its direction, they just move forwards and backwards.
 | Shift			| Move camera down					|
 | Space			| Move camera up					|
 | F3 			| Toggle debug mode					|
+| F12 		| Save a screenshot					|
+| ESC     | Open pause menu           |
 
 **To move any car, hover over a field it is standing on. Then left-click and drag with your mouse.**
 **You can see whether you can move a car, when it is fully opaque.**
