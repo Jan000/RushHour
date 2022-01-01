@@ -22,8 +22,7 @@ No vehicle can change its direction, they just move forwards and backwards.
 | Button		| Description						|
 | :-: 			| - 								|
 | W / A / S / D	| Horizontal movement of the camera	|
-| Shift			| Move camera down					|
-| Space			| Move camera up					|
+| Space / Shift			| Move camera up / down					|
 | F3 			| Toggle debug mode					|
 | F12 		| Take a screenshot					|
 | ESC     | Open pause menu           |
