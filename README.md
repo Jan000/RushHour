@@ -5,7 +5,8 @@ invented by [Nob Yoshigahara](https://en.wikipedia.org/wiki/Nob_Yoshigahara)
 in the 1970s and manufactured and sold by ThinkFun since 1996.
 
 ### Getting started
-First, download the [latest release .jar from GitHub](https://github.com/Jan000/RushHour/releases/tag/release).
+First, you need to install [Java](https://www.java.com/) (tested on Java 8 and 17).
+Next, download the [latest RushHour release .jar from GitHub](https://github.com/Jan000/RushHour/releases/tag/release).
 To run this program you have to execute the RushHourXXX.jar file,
 either by double clicking it or utilizing the command line:
 > `java -jar RushHourXXX.jar`.
@@ -50,6 +51,12 @@ This program has yet only been tested on Windows 10 pro 64 bit running Java 17.
 * Exchange the java-data-front library with Assimp, which is included in LWJGL.
 * Show instructions for controls and make them changable through the settings GUI.
 * Introduce a scoreboard with world-wide highscores.
+* Add an app icon
+* Create an installer
+* Internationalization
+* Add more defined and randomly generated levels
+* Add a level builder
+* Allow users to share their own levels
 
 ### Contact
 Any suggestions, ideas or bugs found?<br>
