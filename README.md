@@ -58,7 +58,7 @@ This program has yet only been tested on Windows 10 pro 64 bit running Java 17.
 * Allow users to share their own levels
 
 ### Motivation
-This project started as a school project and got some love and further improvements afterwards.
+This little game started as a school project and got some love and further improvements afterwards.
 
 ### Contact
 Any suggestions, ideas or bugs found?<br>
